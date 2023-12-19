@@ -157,7 +157,6 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, tomoConfig) {
 	// Check testnet is enable.
 	if ctx.GlobalBool(utils.TomoTestnetFlag.Name) {
 		common.IsTestnet = true
-		cfg.Eth.NetworkId = 89
 
 		// Testnet hard fork blocks
 		common.TIP2019Block = big.NewInt(0)
