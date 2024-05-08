@@ -18,7 +18,6 @@ package filters
 
 import (
 	"context"
-	"github.com/tomochain/tomochain/core/rawdb"
 	"io/ioutil"
 	"math/big"
 	"os"
@@ -27,6 +26,7 @@ import (
 	"github.com/tomochain/tomochain/common"
 	"github.com/tomochain/tomochain/consensus/ethash"
 	"github.com/tomochain/tomochain/core"
+	"github.com/tomochain/tomochain/core/rawdb"
 	"github.com/tomochain/tomochain/core/types"
 	"github.com/tomochain/tomochain/crypto"
 	"github.com/tomochain/tomochain/event"
@@ -50,7 +50,7 @@ func BenchmarkFilters(b *testing.B) {
 	defer os.RemoveAll(dir)
 
 	var (
-		db, _      = rawdb.NewLevelDBDatabase(dir, 0, 0,"")
+		db, _      = rawdb.NewLevelDBDatabase(dir, 0, 0, "")
 		mux        = new(event.TypeMux)
 		txFeed     = new(event.Feed)
 		rmLogsFeed = new(event.Feed)
@@ -84,14 +84,14 @@ func BenchmarkFilters(b *testing.B) {
 		}
 	})
 	for i, block := range chain {
-		core.WriteBlock(db, block)
-		if err := core.WriteCanonicalHash(db, block.Hash(), block.NumberU64()); err != nil {
+		rawdb.WriteBlock(db, block)
+		if err := rawdb.WriteCanonicalHash(db, block.Hash(), block.NumberU64()); err != nil {
 			b.Fatalf("failed to insert block number: %v", err)
 		}
-		if err := core.WriteHeadBlockHash(db, block.Hash()); err != nil {
+		if err := rawdb.WriteHeadBlockHash(db, block.Hash()); err != nil {
 			b.Fatalf("failed to insert block number: %v", err)
 		}
-		if err := core.WriteBlockReceipts(db, block.Hash(), block.NumberU64(), receipts[i]); err != nil {
+		if err := rawdb.WriteBlockReceipts(db, block.Hash(), block.NumberU64(), receipts[i]); err != nil {
 			b.Fatal("error writing block receipts:", err)
 		}
 	}
@@ -115,7 +115,7 @@ func TestFilters(t *testing.T) {
 	defer os.RemoveAll(dir)
 
 	var (
-		db, _      = rawdb.NewLevelDBDatabase(dir, 0, 0,"")
+		db, _      = rawdb.NewLevelDBDatabase(dir, 0, 0, "")
 		mux        = new(event.TypeMux)
 		txFeed     = new(event.Feed)
 		rmLogsFeed = new(event.Feed)
@@ -143,6 +143,7 @@ func TestFilters(t *testing.T) {
 					Topics:  []common.Hash{hash1},
 				},
 			}
+			gen.AddUncheckedTx(types.NewTransaction(999, common.HexToAddress("0x999"), big.NewInt(999), 999, nil, nil))
 			gen.AddUncheckedReceipt(receipt)
 		case 2:
 			receipt := types.NewReceipt(nil, false, 0)
@@ -152,6 +153,7 @@ func TestFilters(t *testing.T) {
 					Topics:  []common.Hash{hash2},
 				},
 			}
+			gen.AddUncheckedTx(types.NewTransaction(999, common.HexToAddress("0x999"), big.NewInt(999), 999, nil, nil))
 			gen.AddUncheckedReceipt(receipt)
 		case 998:
 			receipt := types.NewReceipt(nil, false, 0)
@@ -161,6 +163,7 @@ func TestFilters(t *testing.T) {
 					Topics:  []common.Hash{hash3},
 				},
 			}
+			gen.AddUncheckedTx(types.NewTransaction(999, common.HexToAddress("0x999"), big.NewInt(999), 999, nil, nil))
 			gen.AddUncheckedReceipt(receipt)
 		case 999:
 			receipt := types.NewReceipt(nil, false, 0)
@@ -170,18 +173,19 @@ func TestFilters(t *testing.T) {
 					Topics:  []common.Hash{hash4},
 				},
 			}
+			gen.AddUncheckedTx(types.NewTransaction(999, common.HexToAddress("0x999"), big.NewInt(999), 999, nil, nil))
 			gen.AddUncheckedReceipt(receipt)
 		}
 	})
 	for i, block := range chain {
-		core.WriteBlock(db, block)
-		if err := core.WriteCanonicalHash(db, block.Hash(), block.NumberU64()); err != nil {
+		rawdb.WriteBlock(db, block)
+		if err := rawdb.WriteCanonicalHash(db, block.Hash(), block.NumberU64()); err != nil {
 			t.Fatalf("failed to insert block number: %v", err)
 		}
-		if err := core.WriteHeadBlockHash(db, block.Hash()); err != nil {
+		if err := rawdb.WriteHeadBlockHash(db, block.Hash()); err != nil {
 			t.Fatalf("failed to insert block number: %v", err)
 		}
-		if err := core.WriteBlockReceipts(db, block.Hash(), block.NumberU64(), receipts[i]); err != nil {
+		if err := rawdb.WriteBlockReceipts(db, block.Hash(), block.NumberU64(), receipts[i]); err != nil {
 			t.Fatal("error writing block receipts:", err)
 		}
 	}
