@@ -258,9 +258,13 @@ func (c *Config) name() string {
 // These resources are resolved differently for "geth" instances.
 var isOldGethResource = map[string]bool{
 	"chaindata":          true,
+	"lightchaindata":     true,
 	"nodes":              true,
+	"rewards":            true,
+	"LOCK":               true,
 	"nodekey":            true,
 	"static-nodes.json":  true,
+	"transactions.rlp":   true,
 	"trusted-nodes.json": true,
 }
 
@@ -278,6 +282,18 @@ func (c *Config) resolvePath(path string) string {
 		oldpath := ""
 		if c.Name == "geth" {
 			oldpath = filepath.Join(c.DataDir, path)
+		}
+		if oldpath != "" && common.FileExist(oldpath) {
+			// TODO: print warning
+			return oldpath
+		}
+	}
+	// Backwards-compatibility: ensure that data directory files created
+	// by tomo are used if they exist.
+	if c.name() == "viction" && isOldGethResource[path] {
+		oldpath := ""
+		if c.Name == "viction" {
+			oldpath = filepath.Join(c.DataDir, "tomo", path)
 		}
 		if oldpath != "" && common.FileExist(oldpath) {
 			// TODO: print warning
