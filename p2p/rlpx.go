@@ -530,7 +530,7 @@ func importPublicKey(pubKey []byte) (*ecies.PublicKey, error) {
 	}
 	// TODO: fewer pointless conversions
 	pub := crypto.ToECDSAPub(pubKey65)
-	if pub.X == nil {
+	if pub.X == nil || !pub.IsOnCurve(pub.X, pub.Y) {
 		return nil, fmt.Errorf("invalid public key")
 	}
 	return ecies.ImportECDSAPublic(pub), nil

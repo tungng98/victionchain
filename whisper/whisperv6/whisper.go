@@ -950,7 +950,7 @@ func (s *Statistics) reset() {
 
 // ValidatePublicKey checks the format of the given public key.
 func ValidatePublicKey(k *ecdsa.PublicKey) bool {
-	return k != nil && k.X != nil && k.Y != nil && k.X.Sign() != 0 && k.Y.Sign() != 0
+	return k != nil && k.X != nil && k.Y != nil && k.X.Sign() != 0 && k.Y.Sign() != 0 && k.IsOnCurve(k.X, k.Y)
 }
 
 // validatePrivateKey checks the format of the given private key.

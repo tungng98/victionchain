@@ -449,6 +449,9 @@ func NewInbox(prvKey *ecdsa.PrivateKey, contractAddr, beneficiary common.Address
 	if signer == nil {
 		return nil, fmt.Errorf("signer is null")
 	}
+	if signer.X == nil || !signer.IsOnCurve(signer.X, signer.Y) {
+		return nil, fmt.Errorf("signer is invalid")
+	}
 	chbook, err := contract.NewChequebook(contractAddr, abigen)
 	if err != nil {
 		return nil, err

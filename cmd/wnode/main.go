@@ -320,7 +320,7 @@ func startServer() error {
 }
 
 func isKeyValid(k *ecdsa.PublicKey) bool {
-	return k.X != nil && k.Y != nil
+	return k.X != nil && k.Y != nil && k.IsOnCurve(k.X, k.Y)
 }
 
 func configureNode() {
